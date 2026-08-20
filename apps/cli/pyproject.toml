@@ -1,0 +1,22 @@
+[project]
+name = "voltrail-cli"
+version = "0.1.0"
+description = "CLI for Voltrail"
+requires-python = ">=3.12"
+dependencies = [
+    "voltrail-core",
+    "voltrail-adapters",
+    "click>=8.1.7",
+    "rich>=13.7.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+voltrail = "apps.cli.main:cli"
+
+[tool.uv.sources]
+voltrail-core = { workspace = true }
+voltrail-adapters = { workspace = true }

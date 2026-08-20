@@ -1,0 +1,23 @@
+[project]
+name = "voltrail-api"
+version = "0.1.0"
+description = "FastAPI for Voltrail"
+requires-python = ">=3.12"
+dependencies = [
+    "voltrail-core",
+    "voltrail-adapters",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+    "psycopg[binary]>=3.1.18",
+    "redis>=5.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+voltrail-core = { workspace = true }
+voltrail-adapters = { workspace = true }

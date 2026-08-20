@@ -1,0 +1,14 @@
+[project]
+name = "voltrail-core"
+version = "0.1.0"
+description = "Core logic for Voltrail"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.0.0",
+    "numpy>=1.26.0",
+    "pyyaml>=6.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

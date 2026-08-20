@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltrail - Kế hoạch sạc EV thông minh</title>
+    <!-- MapLibre GL CSS -->
+    <link href="https://unpkg.com/maplibre-gl@3.3.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="sidebar">
+            <div class="glass-panel">
+                <h1 class="logo glow-text">VOLTRAIL</h1>
+                <p class="subtitle">Long-distance EV Routing</p>
+                
+                <form id="plan-form">
+                    <div class="form-group">
+                        <label>Điểm đi</label>
+                        <!-- Giả lập tọa độ cho demo -->
+                        <select id="origin" class="glass-input">
+                            <option value="21.0285,105.8542">Hà Nội (Hồ Gươm)</option>
+                            <option value="10.8231,106.6297">TP.HCM (Quận 1)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Điểm đến</label>
+                        <select id="destination" class="glass-input">
+                            <option value="16.0471,108.2062">Đà Nẵng (Sông Hàn)</option>
+                            <option value="21.0285,105.8542">Hà Nội</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mẫu xe</label>
+                        <select id="vehicle" class="glass-input">
+                            <option value="vinfast-vf8-eco-2023">VinFast VF8 Eco (2023)</option>
+                            <option value="vinfast-vf9-eco-2023">VinFast VF9 Eco (2023)</option>
+                            <option value="tesla-model-3-lr-2023">Tesla Model 3 LR (2023)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pin hiện tại (%)</label>
+                        <input type="number" id="soc" min="10" max="100" value="100" class="glass-input">
+                    </div>
+                    
+                    <button type="submit" class="btn-glow">Tìm đường</button>
+                </form>
+
+                <div id="results" class="hidden">
+                    <h2 class="glow-text">Kế hoạch chuyến đi</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <span class="label">Tổng thời gian</span>
+                            <span id="res-time" class="value">--</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="label">Thời gian lái</span>
+                            <span id="res-drive" class="value">--</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="label">Thời gian sạc</span>
+                            <span id="res-charge" class="value glow-warning">--</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="label">Năng lượng</span>
+                            <span id="res-energy" class="value">--</span>
+                        </div>
+                    </div>
+                    <div id="warnings" class="warnings-box hidden"></div>
+                </div>
+            </div>
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@3.3.0/dist/maplibre-gl.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>

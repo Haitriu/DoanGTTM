@@ -1,0 +1,26 @@
+id: byd-atto3-2023
+name: BYD Atto 3 (2023)
+battery:
+  nominal_capacity_kwh: 60.4
+  usable_capacity_kwh: 60.0
+  reserve_soc_frac: 0.10
+physics:
+  curb_mass_kg: 1750
+  drag_coefficient: 0.29
+  frontal_area_m2: 2.55
+  rolling_resistance_coeff: 0.011
+  drivetrain_efficiency: 0.90
+  regen_efficiency: 0.70
+auxiliary:
+  base_power_kw: 0.4
+  hvac_max_power_kw: 4.0
+charging:
+  max_dc_power_kw: 88
+  max_ac_power_kw: 11
+  connectors: [ccs2, type2]
+  curve:
+    - [0.05, 80]
+    - [0.30, 88]
+    - [0.55, 60]
+    - [0.80, 40]
+    - [0.95, 15]

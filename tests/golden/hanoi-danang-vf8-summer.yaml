@@ -1,0 +1,11 @@
+- id: hanoi-danang-vf8-summer
+  vehicle: vinfast-vf8-eco-2023
+  route_polyline: "g|qjC~vqwS"  # Dummy for now. We use FixtureRoutingProvider for test_golden
+  conditions: 
+    temperature_c: 32
+    wind_mps: 3
+    load_kg: 150
+  actual_energy_kwh: 11.8 # Dummy value based on our 50km fixture
+  actual_duration_s: 2000
+  tolerance_pct: 10
+  source: "Báo cáo cộng đồng, 2026-03"

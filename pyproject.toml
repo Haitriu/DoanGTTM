@@ -1,0 +1,58 @@
+[project]
+name = "voltrail"
+version = "0.1.0"
+description = "Tối ưu tuyến đường và trạm sạc cho ô tô điện đi đường dài"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "voltrail-core",
+    "voltrail-adapters",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "click>=8.0.0",
+    "rich>=13.0.0",
+    "scikit-learn>=1.4.0",
+    "paho-mqtt>=2.0.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "packages/*",
+    "apps/api",
+    "apps/cli",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = []
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "hypothesis>=6.0.0",
+    "pytest-cov>=4.1.0",
+]
+
+[[tool.mypy.overrides]]
+module = "voltrail_core.*"
+strict = true
+
+[tool.uv.sources]
+voltrail-core = { workspace = true }
+voltrail-adapters = { workspace = true }

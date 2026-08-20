@@ -1,0 +1,26 @@
+id: kia-ev6-2023
+name: Kia EV6 LR AWD (2023)
+battery:
+  nominal_capacity_kwh: 77.4
+  usable_capacity_kwh: 74.0
+  reserve_soc_frac: 0.10
+physics:
+  curb_mass_kg: 2015
+  drag_coefficient: 0.28
+  frontal_area_m2: 2.5
+  rolling_resistance_coeff: 0.010
+  drivetrain_efficiency: 0.91
+  regen_efficiency: 0.75
+auxiliary:
+  base_power_kw: 0.4
+  hvac_max_power_kw: 4.5
+charging:
+  max_dc_power_kw: 240
+  max_ac_power_kw: 11
+  connectors: [ccs2, type2]
+  curve:
+    - [0.05, 220]
+    - [0.30, 240]
+    - [0.55, 175]
+    - [0.80, 110]
+    - [0.95, 20]

@@ -1,0 +1,26 @@
+id: porsche-taycan-2023
+name: Porsche Taycan 4S (2023)
+battery:
+  nominal_capacity_kwh: 93.4
+  usable_capacity_kwh: 83.7
+  reserve_soc_frac: 0.10
+physics:
+  curb_mass_kg: 2220
+  drag_coefficient: 0.22
+  frontal_area_m2: 2.33
+  rolling_resistance_coeff: 0.009
+  drivetrain_efficiency: 0.89
+  regen_efficiency: 0.70
+auxiliary:
+  base_power_kw: 0.6
+  hvac_max_power_kw: 5.5
+charging:
+  max_dc_power_kw: 270
+  max_ac_power_kw: 11
+  connectors: [ccs2, type2]
+  curve:
+    - [0.05, 270]
+    - [0.30, 270]
+    - [0.55, 200]
+    - [0.80, 100]
+    - [0.95, 30]

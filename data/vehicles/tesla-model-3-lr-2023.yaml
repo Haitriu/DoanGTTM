@@ -1,0 +1,30 @@
+id: tesla-model-3-lr-2023
+name: Tesla Model 3 Long Range (2023)
+battery:
+  nominal_capacity_kwh: 82.0
+  usable_capacity_kwh: 75.0
+  reserve_soc_frac: 0.10
+physics:
+  curb_mass_kg: 1830
+  drag_coefficient: 0.23
+  frontal_area_m2: 2.22
+  rolling_resistance_coeff: 0.009
+  drivetrain_efficiency: 0.92
+  regen_efficiency: 0.75
+auxiliary:
+  base_power_kw: 0.3
+  hvac_max_power_kw: 3.5
+charging:
+  max_dc_power_kw: 250
+  max_ac_power_kw: 11
+  connectors: [ccs2, type2]
+  curve:
+    - [0.05, 250]
+    - [0.20, 250]
+    - [0.30, 200]
+    - [0.50, 120]
+    - [0.80, 50]
+    - [0.95, 15]
+metadata:
+  source: "EV Database"
+  confidence: high

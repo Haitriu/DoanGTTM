@@ -1,0 +1,30 @@
+id: vinfast-vf8-eco-2023
+name: VinFast VF8 Eco (2023)
+battery:
+  nominal_capacity_kwh: 87.7
+  usable_capacity_kwh: 82.0
+  reserve_soc_frac: 0.10
+physics:
+  curb_mass_kg: 2350
+  drag_coefficient: 0.31
+  frontal_area_m2: 2.75
+  rolling_resistance_coeff: 0.010
+  drivetrain_efficiency: 0.90
+  regen_efficiency: 0.70
+auxiliary:
+  base_power_kw: 0.5
+  hvac_max_power_kw: 5.0
+charging:
+  max_dc_power_kw: 150
+  max_ac_power_kw: 11
+  connectors: [ccs2, type2]
+  curve:
+    - [0.05, 120]
+    - [0.30, 150]
+    - [0.55, 110]
+    - [0.80, 60]
+    - [0.95, 25]
+metadata:
+  source: "Thông số nhà sản xuất + đo đạc cộng đồng"
+  confidence: medium
+  contributors: ["@username"]
