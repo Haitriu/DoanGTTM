@@ -73,6 +73,19 @@
                         </div>
                     </div>
                     <div id="warnings" class="warnings-box hidden"></div>
+                    <div id="stops-list" class="stops-list"></div>
+
+                    <button id="sim-start-btn" class="btn-glow btn-sim hidden">🚗 Bắt đầu mô phỏng xe chạy live</button>
+                    <div id="sim-panel" class="sim-panel hidden">
+                        <div class="sim-status-row">
+                            <span id="sim-status-badge" class="sim-badge">Đang khởi động…</span>
+                            <span id="sim-soc" class="sim-soc">--%</span>
+                        </div>
+                        <div class="sim-soc-bar"><div id="sim-soc-fill" class="sim-soc-fill"></div></div>
+                        <div id="sim-conditions" class="sim-conditions"></div>
+                        <div id="sim-warnings" class="sim-warnings"></div>
+                        <button id="sim-stop-btn" class="btn-ghost">Dừng mô phỏng</button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -157,6 +157,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# OSM extract + OSRM graph — dữ liệu bulk từ nguồn ngoài, không commit vào git
+# (xem CLAUDE.md mục 7). Tải lại bằng `make osrm-data`.
+data/osm/
+
 # Spyder project settings
 .spyderproject
 .spyproject

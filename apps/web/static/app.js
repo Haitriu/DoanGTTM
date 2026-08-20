@@ -1,6 +1,10 @@
 // Khởi tạo bản đồ — tự động dùng Mapbox style nếu server có token
 let map;
 let activeMarkers = [];
+let lastPlanPayload = null;
+let simSessionId = null;
+let simPollTimer = null;
+let vehicleMarker = null;
 
 async function initApp() {
     // Lấy config từ API (mapbox token, chế độ station)
@@ -115,8 +119,17 @@ document.getElementById('plan-form').addEventListener('submit', async (e) => {
 
         document.getElementById('results').classList.remove('hidden');
 
-        // Vẽ bản đồ — dùng waypoints QL1A từ API
+        renderStopsList(data.stops || []);
+
+        // Vẽ bản đồ — chỉ các trạm thực sự nằm trong kế hoạch tối ưu (data.stops),
+        // không vẽ toàn bộ trạm tìm được trên bản đồ để tránh gây nhiễu.
         drawRoute(payload.origin, payload.destination, data.stops || [], data.route_waypoints || []);
+
+        // Lưu payload để dùng cho nút "Bắt đầu mô phỏng"
+        lastPlanPayload = payload;
+        stopSimulation(); // huỷ phiên mô phỏng cũ (nếu có) khi lập kế hoạch mới
+        document.getElementById('sim-start-btn').classList.remove('hidden');
+        document.getElementById('sim-panel').classList.add('hidden');
 
     } catch (err) {
         alert('Lỗi tính toán: ' + err.message);
@@ -127,6 +140,121 @@ document.getElementById('plan-form').addEventListener('submit', async (e) => {
     }
 }); // end addEventListener
 } // end setupFormListener
+
+// ---------------------------------------------------------------------------
+// Mô phỏng xe chạy live: demo cho "dữ liệu xe trực tiếp" — gọi backend
+// /api/simulate/*, poll trạng thái mỗi giây, vẽ marker xe di chuyển trên bản
+// đồ và hiển thị SOC/cảnh báo/lập-lại-kế-hoạch theo thời gian thực.
+// ---------------------------------------------------------------------------
+
+const SIM_POLL_MS = 1000;
+const STATUS_LABELS = {
+    planning: 'Đang lập kế hoạch…',
+    driving: '🚗 Đang lái xe',
+    charging: '⚡ Đang sạc',
+    arrived: '🏁 Đã đến nơi',
+    failed: '❌ Thất bại',
+};
+
+async function startSimulation() {
+    if (!lastPlanPayload) return;
+    const btn = document.getElementById('sim-start-btn');
+    btn.disabled = true;
+    btn.innerText = 'Đang khởi động…';
+
+    try {
+        const resp = await fetch('/api/simulate/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lastPlanPayload),
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        const data = await resp.json();
+        simSessionId = data.session_id;
+
+        const c = data.conditions;
+        document.getElementById('sim-conditions').innerText =
+            `Điều kiện thực tế chuyến này: tải phụ ${c.extra_load_kg.toFixed(0)}kg, ` +
+            `${c.temperature_c.toFixed(0)}°C, gió ${c.wind_mps >= 0 ? '+' : ''}${c.wind_mps.toFixed(1)}m/s`;
+
+        document.getElementById('sim-panel').classList.remove('hidden');
+        btn.classList.add('hidden');
+
+        simPollTimer = setInterval(pollSimulation, SIM_POLL_MS);
+        pollSimulation();
+    } catch (err) {
+        alert('Không khởi động được mô phỏng: ' + err.message);
+        btn.disabled = false;
+        btn.innerText = '🚗 Bắt đầu mô phỏng xe chạy live';
+    }
+}
+
+async function pollSimulation() {
+    if (!simSessionId) return;
+    let data;
+    try {
+        const resp = await fetch(`/api/simulate/${simSessionId}`);
+        if (!resp.ok) throw new Error('session not found');
+        data = await resp.json();
+    } catch (_) {
+        stopSimulation();
+        return;
+    }
+
+    const badge = document.getElementById('sim-status-badge');
+    badge.innerText = STATUS_LABELS[data.status] || data.status;
+    badge.className = `sim-badge status-${data.status}`;
+
+    document.getElementById('sim-soc').innerText = `${data.soc_pct.toFixed(0)}%`;
+    document.getElementById('sim-soc-fill').style.width = `${Math.max(0, Math.min(100, data.soc_pct))}%`;
+
+    const warnBox = document.getElementById('sim-warnings');
+    warnBox.innerHTML = data.warnings.map(w => `<div class="sim-warning-item">${w}</div>`).join('');
+
+    // Cập nhật vị trí xe live trên bản đồ
+    if (!vehicleMarker) {
+        const el = document.createElement('div');
+        el.innerHTML = '🚗';
+        el.style.cssText = 'font-size: 26px; filter: drop-shadow(0 0 10px rgba(0,240,255,1));';
+        vehicleMarker = new maplibregl.Marker({ element: el }).setLngLat([data.lon, data.lat]).addTo(map);
+    } else {
+        vehicleMarker.setLngLat([data.lon, data.lat]);
+    }
+
+    // Nếu kế hoạch bị lập lại giữa chừng, cập nhật lại danh sách trạm
+    renderStopsList(data.stops || []);
+
+    if (data.status === 'arrived' || data.status === 'failed') {
+        clearInterval(simPollTimer);
+        simPollTimer = null;
+        if (data.status === 'failed' && data.error) {
+            warnBox.innerHTML += `<div class="sim-warning-item">❌ ${data.error}</div>`;
+        }
+    }
+}
+
+function stopSimulation() {
+    if (simPollTimer) clearInterval(simPollTimer);
+    simPollTimer = null;
+    if (simSessionId) {
+        fetch(`/api/simulate/${simSessionId}/stop`, { method: 'POST' }).catch(() => {});
+    }
+    simSessionId = null;
+    if (vehicleMarker) {
+        vehicleMarker.remove();
+        vehicleMarker = null;
+    }
+    const btn = document.getElementById('sim-start-btn');
+    btn.disabled = false;
+    btn.innerText = '🚗 Bắt đầu mô phỏng xe chạy live';
+}
+
+document.getElementById('sim-start-btn').addEventListener('click', startSimulation);
+document.getElementById('sim-stop-btn').addEventListener('click', () => {
+    stopSimulation();
+    document.getElementById('sim-panel').classList.add('hidden');
+    document.getElementById('sim-start-btn').classList.remove('hidden');
+});
 
 // Khởi động ứng dụng
 initApp();
@@ -145,6 +273,25 @@ function clearMap() {
     // Xoá layer và source cũ
     if (map.getLayer('route')) map.removeLayer('route');
     if (map.getSource('route')) map.removeSource('route');
+}
+
+function renderStopsList(stops) {
+    const container = document.getElementById('stops-list');
+    if (!stops || stops.length === 0) {
+        container.innerHTML = '<div class="stop-card">✅ Không cần dừng — pin đủ đi thẳng tới đích.</div>';
+        return;
+    }
+    container.innerHTML = stops.map(s => `
+        <div class="stop-card ${s.is_rest_stop ? 'rest-stop' : ''}">
+            <div class="stop-title">
+                <span>${s.is_rest_stop ? '🛌' : '⚡'} Chặng ${s.order} — ${s.operator || 'Trạm sạc'}</span>
+            </div>
+            <div>Đến nơi còn <span class="stop-soc">${s.arrival_soc_pct.toFixed(0)}%</span> →
+                 Sạc <b>${Math.round(s.charge_minutes)} phút</b> đến
+                 <span class="stop-soc">${s.departure_soc_pct.toFixed(0)}%</span> rồi đi tiếp</div>
+            <div class="stop-reason">${s.reason || ''}</div>
+        </div>
+    `).join('');
 }
 
 function drawRoute(origin, dest, stops, routeWaypoints) {
@@ -184,10 +331,12 @@ function drawRoute(origin, dest, stops, routeWaypoints) {
     // Thả marker cho Origin
     addMarker(origin.lat, origin.lon, '🚗', 'Điểm đi');
 
-    // Thả marker cho từng trạm sạc
-    stops.forEach((stop, i) => {
-        const label = `⚡ Trạm ${i + 1}\n${stop.operator || ''}\nSạc: ${Math.round(stop.charge_minutes)}p | Rời: ${stop.departure_soc_pct.toFixed(0)}%`;
-        addMarker(stop.lat, stop.lon, '⚡', label);
+    // Thả marker cho từng trạm sạc trong kế hoạch tối ưu
+    stops.forEach(stop => {
+        const label = `⚡ Chặng ${stop.order} — ${stop.operator || ''}\n` +
+            `Đến: ${stop.arrival_soc_pct.toFixed(0)}% → Sạc ${Math.round(stop.charge_minutes)}p → Đi: ${stop.departure_soc_pct.toFixed(0)}%\n` +
+            `${stop.reason || ''}`;
+        addMarker(stop.lat, stop.lon, stop.is_rest_stop ? '🛌' : '⚡', label);
     });
 
     // Thả marker cho Destination
